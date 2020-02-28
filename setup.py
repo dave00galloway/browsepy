@@ -83,7 +83,7 @@ setup(
         'browsepy.tests.deprecated.plugin',
         'browsepy.transform',
         'browsepy.plugin',
-        'browsepy.plugin.player',
+        'browsepy.plugin.browser',
         ],
     entry_points={
         'console_scripts': (
@@ -96,7 +96,7 @@ setup(
             'static/fonts/*',
             'static/*.*',  # do not capture directories
         ],
-        'browsepy.plugin.player': [
+        'browsepy.plugin.browser': [
             'templates/*',
             'static/*/*',
         ]},
