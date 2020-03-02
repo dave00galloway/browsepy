@@ -10,7 +10,6 @@ handler.setFormatter(logging.Formatter('%(asctime)s - %(name)s - %(levelname)s -
 logger.addHandler(handler)
 
 
-
 class BehaveAbleFile(File):
     extensions = {
         'feature': 'feature'
@@ -20,7 +19,7 @@ class BehaveAbleFile(File):
     def extensions_from_mimetypes(cls, mimetypes):
         logger.debug("detecting mimetypes")
         mimetypes = frozenset(mimetypes)
-        
+
         return {
             ext: mimetype
             for ext, mimetype in cls.extensions.items()

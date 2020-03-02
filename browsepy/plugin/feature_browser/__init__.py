@@ -1,8 +1,10 @@
 import os.path
 
-from flask import Blueprint
+from flask import Blueprint, render_template
+from werkzeug.exceptions import NotFound
 
-from browsepy.plugin.feature_browser.behaveable import detect_behaveable_mimetype
+from browsepy import OutsideDirectoryBase
+from browsepy.plugin.feature_browser.behaveable import detect_behaveable_mimetype, BehaveAbleFile
 
 __basedir__ = os.path.dirname(os.path.abspath(__file__))
 
@@ -13,6 +15,17 @@ browser = Blueprint(
     template_folder=os.path.join(__basedir__, 'templates'),
     static_folder=os.path.join(__basedir__, 'static'),
 )
+
+
+@browser.route('/summarise-feature/<path:path>')
+def summarise_feature(path):
+    try:
+        file = BehaveAbleFile.from_urlpath(path)
+        if file.is_file:
+            return render_template('audio.player.html', file=file)
+    except OutsideDirectoryBase:
+        pass
+    return NotFound()
 
 
 def register_arguments(manager):
@@ -41,3 +54,12 @@ def register_plugin(manager):
     '''
     manager.register_blueprint(browser)
     manager.register_mimetype_function(detect_behaveable_mimetype)
+
+    # register action buttons
+    manager.register_widget(
+        place='entry-actions',
+        css='play',
+        type='button',
+        endpoint='browser.summarise_feature',
+        filter=BehaveAbleFile.detect
+    )
