@@ -1,6 +1,9 @@
 import logging
 import os
 
+from gherkin.parser import Parser
+from gherkin.token_scanner import TokenScanner
+
 from browsepy.file import File
 
 logger = logging.getLogger(__name__)
@@ -14,6 +17,17 @@ class BehaveAbleFile(File):
     extensions = {
         'feature': 'feature'
     }
+
+    def __init__(self, file=None, **defaults):
+        super().__init__(**defaults)
+        self.file = file
+
+    def summarise(self):
+        parser = Parser()
+        scanner = TokenScanner(self.file.path)
+        gherkin_document = parser.parse(scanner)
+        # pickles = compile(gherkin_document)
+        return gherkin_document
 
     @classmethod
     def extensions_from_mimetypes(cls, mimetypes):

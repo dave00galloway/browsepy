@@ -21,3 +21,6 @@ browsepy.egg-info/*
 **.egg-info/*
 **.pyc
 **/node_modules/*
+
+#plugin specific
+venv/

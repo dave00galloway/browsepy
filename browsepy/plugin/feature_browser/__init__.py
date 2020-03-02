@@ -22,7 +22,10 @@ def summarise_feature(path):
     try:
         file = BehaveAbleFile.from_urlpath(path)
         if file.is_file:
-            return render_template('audio.player.html', file=file)
+            template = render_template('audio.player.html', file=file)
+            feature = BehaveAbleFile(file=file)
+            feature.summarise()
+            return template
     except OutsideDirectoryBase:
         pass
     return NotFound()
