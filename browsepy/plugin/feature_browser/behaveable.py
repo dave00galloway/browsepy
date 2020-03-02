@@ -5,7 +5,7 @@ from browsepy.file import File
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
-handler = logging.FileHandler('plugin/behaveable.log')
+handler = logging.FileHandler('plugin/feature_browser/behaveable.log')
 handler.setFormatter(logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s'))
 logger.addHandler(handler)
 
