@@ -3,8 +3,8 @@ import os.path
 from flask import Blueprint, render_template
 from werkzeug.exceptions import NotFound
 
-from browsepy import OutsideDirectoryBase
-from browsepy.plugin.feature_browser.behaveable import detect_behaveable_mimetype, BehaveAbleFile
+from browsepy import OutsideDirectoryBase, get_cookie_browse_sorting, browse_sortkey_reverse, stream_template
+from browsepy.plugin.feature_browser.behaveable import detect_behaveable_mimetype, BehaveAbleFile, BehaveAbleDir
 
 __basedir__ = os.path.dirname(os.path.abspath(__file__))
 
@@ -26,6 +26,28 @@ def summarise_feature(path):
             # feature = BehaveAbleFile(file=file)
             feature.summarise()
             return template
+    except OutsideDirectoryBase:
+        pass
+    return NotFound()
+
+
+@browser.route("/summarise-directory", defaults={"path": ""})
+@browser.route('/summarise-directory/<path:path>')
+def summarise_directory(path):
+    sort_property = get_cookie_browse_sorting(path, 'text')
+    sort_fnc, sort_reverse = browse_sortkey_reverse(sort_property)
+    try:
+        suite = BehaveAbleDir.from_urlpath(path)
+        if suite.is_directory:
+            suite.summarise()
+            return stream_template(
+                'audio.player.html',
+                file=suite,
+                sort_property=sort_property,
+                sort_fnc=sort_fnc,
+                sort_reverse=sort_reverse,
+                playlist=True
+            )
     except OutsideDirectoryBase:
         pass
     return NotFound()
@@ -65,4 +87,13 @@ def register_plugin(manager):
         type='button',
         endpoint='browser.summarise_feature',
         filter=BehaveAbleFile.detect
+    )
+
+    # register header button
+    manager.register_widget(
+        place='header',
+        type='button',
+        endpoint='browser.summarise_directory',
+        text='Summarise directory',
+        filter=BehaveAbleDir.detect
     )
