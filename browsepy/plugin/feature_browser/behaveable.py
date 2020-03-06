@@ -6,6 +6,7 @@ from gherkin.pickles import compiler
 from gherkin.token_scanner import TokenScanner
 from werkzeug.utils import cached_property
 
+import browsepy
 from browsepy.file import File, Directory
 
 logger = logging.getLogger(__name__)
@@ -14,6 +15,9 @@ handler = logging.FileHandler('plugin/feature_browser/behaveable.log')
 handler.setFormatter(logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s'))
 logger.addHandler(handler)
 
+
+class GherkinError(Exception):
+    pass
 
 class FeatureSummary(object):
     def __init__(self, behaveable_file=None, **kwargs):
@@ -41,8 +45,13 @@ class BehaveAbleFile(File):
         self.path = file.path
         parser = Parser()
         scanner = TokenScanner(self.path)
-        self.gherkin_document = parser.parse(scanner)
-        self.pickles = compiler.compile(self.gherkin_document)
+        # noinspection PyBroadException
+        try:
+            self.gherkin_document = parser.parse(scanner)
+            self.pickles = compiler.compile(self.gherkin_document)
+        except Exception as e:
+            # logger.error("unable to parse / pickle doc {doc}".format(doc=self.path), exc_info=1)
+            raise GherkinError("unable to parse / pickle doc {doc}".format(doc=self.path)) from e
 
     def summarise(self, **kwargs):
         feature_summary = FeatureSummary(behaveable_file=self, **kwargs)
@@ -103,6 +112,33 @@ class BehaveAbleDir(Directory):
             elif BehaveAbleDir.detect(file):
                 logger.warning("yielding dir {file} as file?".format(file=file.path))
                 yield file
+
+    def _listdir(self, precomputed_stats=(os.name == 'nt')):
+        '''
+        Iter unsorted entries on this directory.
+
+        :yields: Directory or File instance for each entry in directory
+        :ytype: Node
+        '''
+        for entry in browsepy.file.scandir(self.path, self.app):
+            kwargs = {
+                'path': entry.path,
+                'app': self.app,
+                'parent': self,
+                'is_excluded': False
+            }
+            try:
+                if precomputed_stats and not entry.is_symlink():
+                    kwargs['stats'] = entry.stat()
+                if entry.is_dir(follow_symlinks=True):
+                    yield self.directory_class(**kwargs)
+                else:
+                    try:
+                        yield self.file_class(**kwargs)
+                    except GherkinError:
+                        continue
+            except OSError as e:
+                logger.exception(e)
 
     @classmethod
     def from_urlpath(cls, path, app=None, **defaults):
