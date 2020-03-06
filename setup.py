@@ -25,10 +25,9 @@ License
 MIT (see LICENSE file).
 """
 
-import os
 import os.path
-import sys
 import shutil
+import sys
 
 try:
     from setuptools import setup
@@ -83,7 +82,8 @@ setup(
         'browsepy.tests.deprecated.plugin',
         'browsepy.transform',
         'browsepy.plugin',
-        'browsepy.plugin.browser',
+        'browsepy.plugin.player',
+        'browsepy.plugin.feature_browser',
         ],
     entry_points={
         'console_scripts': (
@@ -96,10 +96,15 @@ setup(
             'static/fonts/*',
             'static/*.*',  # do not capture directories
         ],
-        'browsepy.plugin.browser': [
+        'browsepy.plugin.player': [
             'templates/*',
             'static/*/*',
-        ]},
+        ],
+        'browsepy.plugin.feature_browser': [
+            'templates/*',
+            'static/*/*',
+        ]
+    },
     install_requires=['flask', 'unicategories'] + extra_requires,
     test_suite='browsepy.tests',
     test_runner='browsepy.tests.runner:DebuggerTextTestRunner',
