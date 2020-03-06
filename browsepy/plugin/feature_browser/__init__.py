@@ -20,10 +20,10 @@ browser = Blueprint(
 @browser.route('/summarise-feature/<path:path>')
 def summarise_feature(path):
     try:
-        file = BehaveAbleFile.from_urlpath(path)
-        if file.is_file:
-            template = render_template('audio.player.html', file=file)
-            feature = BehaveAbleFile(file=file)
+        feature = BehaveAbleFile.from_urlpath(path)
+        if feature.is_file:
+            template = render_template('audio.player.html', file=feature)
+            # feature = BehaveAbleFile(file=file)
             feature.summarise()
             return template
     except OutsideDirectoryBase:

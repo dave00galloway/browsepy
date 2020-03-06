@@ -2,6 +2,7 @@ import logging
 import os
 
 from gherkin.parser import Parser
+from gherkin.pickles import compiler
 from gherkin.token_scanner import TokenScanner
 
 from browsepy.file import File
@@ -13,21 +14,43 @@ handler.setFormatter(logging.Formatter('%(asctime)s - %(name)s - %(levelname)s -
 logger.addHandler(handler)
 
 
+class FeatureSummary(object):
+    def __init__(self, behaveable_file=None, **kwargs):
+        super().__init__(**kwargs)
+        if behaveable_file is None:
+            behaveable_file = BehaveAbleFile()
+        self.gherkin_document = behaveable_file.gherkin_document
+        self.pickles = behaveable_file.pickles
+        self.scenario_count = len(self.pickles)
+
+
 class BehaveAbleFile(File):
     extensions = {
         'feature': 'feature'
     }
 
-    def __init__(self, file=None, **defaults):
-        super().__init__(**defaults)
-        self.file = file
+    def __init__(self, file=None, path=None, **defaults):
+        if file is None:
+            file = self
+        if path is None:
+            path = file.path
+        super().__init__(path=path, **defaults)
 
-    def summarise(self):
+        self.file = file
+        self.path = file.path
         parser = Parser()
-        scanner = TokenScanner(self.file.path)
-        gherkin_document = parser.parse(scanner)
-        # pickles = compile(gherkin_document)
-        return gherkin_document
+        scanner = TokenScanner(self.path)
+        self.gherkin_document = parser.parse(scanner)
+        self.pickles = compiler.compile(self.gherkin_document)
+
+    def summarise(self, **kwargs):
+        feature_summary = FeatureSummary(behaveable_file=self, **kwargs)
+        return feature_summary  # return gherkin_document
+
+    @classmethod
+    def from_urlpath(cls, path, app=None, **defaults):
+        kls = super().from_urlpath(path, app=app)
+        return BehaveAbleFile(file=kls, app=kls.app, **defaults)
 
     @classmethod
     def extensions_from_mimetypes(cls, mimetypes):
