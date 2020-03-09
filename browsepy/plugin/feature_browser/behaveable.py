@@ -28,17 +28,24 @@ class SuiteSummary(object):
         if feature_summary is None:
             feature_summary = {behaveable_suite.path: behaveable_suite.summarise(), "": {}}
         self.features = {}
+        self.suites = {}
         self.scenario_count = 0
+        self.suite_count = 0
+        self.feature_count = 0
         for entry in feature_summary:
             if isinstance(feature_summary[entry], FeatureSummary):
                 self.features[entry] = feature_summary[entry]
                 self.scenario_count += feature_summary[entry].scenario_count
             elif isinstance(feature_summary[entry], dict):
-                suite_summary = SuiteSummary(behaveable_suite=BehaveAbleDir(file=entry, path=entry, app=None),
+                suite = BehaveAbleDir(file=entry, path=entry, app=None)
+                self.suites[entry] = suite
+                suite_summary = SuiteSummary(behaveable_suite=suite,
                                              feature_summary=feature_summary[entry], **kwargs)
                 self.features.update(suite_summary.features)
+                self.suites.update(suite_summary.suites)
                 self.scenario_count += suite_summary.scenario_count
         self.feature_count = len(self.features)
+        self.suite_count = len(self.suites)
 
 
 class FeatureSummary(object):
