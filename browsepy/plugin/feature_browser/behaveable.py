@@ -30,9 +30,10 @@ class SuiteSummary(object):
         self.features = []
         for entry in feature_summary:
             if isinstance(feature_summary[entry], FeatureSummary):
-                self.features.append(entry)
-            elif isinstance(entry, dict):
-                suite_summary = SuiteSummary(behaveable_suite=BehaveAbleDir(file=entry, path=entry, app=None), **kwargs)
+                self.features.append(feature_summary[entry])
+            elif isinstance(feature_summary[entry], dict):
+                suite_summary = SuiteSummary(behaveable_suite=BehaveAbleDir(file=entry, path=entry, app=None),
+                                             feature_summary=feature_summary[entry], **kwargs)
                 self.features.extend(suite_summary.features)
 
 
