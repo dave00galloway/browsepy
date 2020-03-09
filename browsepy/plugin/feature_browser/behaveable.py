@@ -20,6 +20,22 @@ class GherkinError(Exception):
     pass
 
 
+class SuiteSummary(object):
+    def __init__(self, behaveable_suite=None, feature_summary=None, **kwargs):
+        super().__init__(**kwargs)
+        if behaveable_suite is None:
+            behaveable_suite = BehaveAbleDir()
+        if feature_summary is None:
+            feature_summary = {behaveable_suite.path: behaveable_suite.summarise(), "": {}}
+        self.features = []
+        for entry in feature_summary:
+            if isinstance(feature_summary[entry], FeatureSummary):
+                self.features.append(entry)
+            elif isinstance(entry, dict):
+                suite_summary = SuiteSummary(behaveable_suite=BehaveAbleDir(file=entry, path=entry, app=None), **kwargs)
+                self.features.extend(suite_summary.features)
+
+
 class FeatureSummary(object):
     def __init__(self, behaveable_file=None, **kwargs):
         super().__init__(**kwargs)

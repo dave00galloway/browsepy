@@ -4,7 +4,8 @@ from flask import Blueprint, render_template
 from werkzeug.exceptions import NotFound
 
 from browsepy import OutsideDirectoryBase, get_cookie_browse_sorting, browse_sortkey_reverse, stream_template
-from browsepy.plugin.feature_browser.behaveable import detect_behaveable_mimetype, BehaveAbleFile, BehaveAbleDir
+from browsepy.plugin.feature_browser.behaveable import detect_behaveable_mimetype, BehaveAbleFile, BehaveAbleDir, \
+    SuiteSummary
 
 __basedir__ = os.path.dirname(os.path.abspath(__file__))
 
@@ -40,6 +41,7 @@ def summarise_directory(path):
         suite = BehaveAbleDir.from_urlpath(path)
         if suite.is_directory:
             summary = suite.summarise()
+            suite_summary = SuiteSummary(behaveable_suite=suite, feature_summary=summary)
             return stream_template(
                 'audio.player.html',
                 file=suite,
