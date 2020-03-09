@@ -37,10 +37,11 @@ class SuiteSummary(object):
                 self.features[entry] = feature_summary[entry]
                 self.scenario_count += feature_summary[entry].scenario_count
             elif isinstance(feature_summary[entry], dict):
-                suite = BehaveAbleDir(file=entry, path=entry, app=None)
-                self.suites[entry] = suite
+                suite = BehaveAbleDir.from_urlpath(entry, app=None)
+                # self.suites[entry] = suite
                 suite_summary = SuiteSummary(behaveable_suite=suite,
                                              feature_summary=feature_summary[entry], **kwargs)
+                self.suites[entry] = suite_summary
                 self.features.update(suite_summary.features)
                 self.suites.update(suite_summary.suites)
                 self.scenario_count += suite_summary.scenario_count
