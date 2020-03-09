@@ -169,7 +169,7 @@ class BehaveAbleDir(Directory):
         return BehaveAbleDir(file=kls, app=kls.app, **defaults)
 
     def summarise(self, **kwargs):
-        feature_summary = {}  # FeatureSummary(behaveable_file=self, **kwargs)
+        feature_summary = {}
         for entry in self.entries(**kwargs):
             if self.detect(entry) and not hasattr(entry, 'summarise'):
                 # child dirs may not have been inited as Behaveable so that needs to happen now
@@ -177,7 +177,7 @@ class BehaveAbleDir(Directory):
                 entry = BehaveAbleDir(file=self, path=entry.path, **kwargs)
             # behaveable files should already have been inited.
             # any other node should have been filtered out by BehaveAbleDir.detect()
-            feature_summary[entry.path] = entry.summarise()
+            feature_summary[entry.urlpath] = entry.summarise()
         return feature_summary  # return gherkin_document
 
 
