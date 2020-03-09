@@ -14,6 +14,8 @@ class TableFormatEntry(object):
             self.type = "Suite"
         except AttributeError:
             self.type = "Feature"
+            self.feature_count = None
+            self.suite_count = None
         self.scenario_count = suite_summary.scenario_count
 
 
@@ -23,7 +25,7 @@ class TableFormatSummary(Table):
     feature_count = Col('feature_count')
     suite_count = Col('suite_count')
     link = LinkCol(
-        'Link', 'flask_link', url_kwargs=dict(id='urlpath'), allow_sort=False)
+        'Link', 'browser.summarise_directory', url_kwargs=dict(path='urlpath'), allow_sort=False)
 
     def __init__(self, suite_summary=None, **kwargs):
         if suite_summary is None:
