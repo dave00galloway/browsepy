@@ -17,3 +17,8 @@ flake8
 coverage
 pyaml
 sphinx
+
+# for feature_browser plugin
+flask_table
+gherkin_official
+werkzeug

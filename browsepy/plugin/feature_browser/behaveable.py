@@ -21,12 +21,16 @@ class GherkinError(Exception):
 
 
 class SuiteSummary(object):
-    def __init__(self, behaveable_suite=None, feature_summary=None, **kwargs):
-        super().__init__(**kwargs)
-        if behaveable_suite is None:
-            behaveable_suite = BehaveAbleDir()
-        if feature_summary is None:
-            feature_summary = {behaveable_suite.path: behaveable_suite.summarise(), "": {}}
+    def __init__(self, urlpath=None,
+                 # behaveable_suite=None,
+                 feature_summary=None, **kwargs):
+        super().__init__()
+        # if behaveable_suite is None:
+        #     behaveable_suite = BehaveAbleDir()
+        if feature_summary is None or urlpath is None:
+            # feature_summary = {behaveable_suite.path: behaveable_suite.summarise(), "": {}}
+            raise ValueError(str(locals()))
+        self.urlpath = urlpath
         self.features = {}
         self.suites = {}
         self.scenario_count = 0
@@ -37,9 +41,9 @@ class SuiteSummary(object):
                 self.features[entry] = feature_summary[entry]
                 self.scenario_count += feature_summary[entry].scenario_count
             elif isinstance(feature_summary[entry], dict):
-                suite = BehaveAbleDir.from_urlpath(entry, app=None)
+                # suite = BehaveAbleDir.from_urlpath(entry, app=None)
                 # self.suites[entry] = suite
-                suite_summary = SuiteSummary(behaveable_suite=suite,
+                suite_summary = SuiteSummary(urlpath=entry,  # behaveable_suite=suite,
                                              feature_summary=feature_summary[entry], **kwargs)
                 self.suites[entry] = suite_summary
                 self.features.update(suite_summary.features)
@@ -50,10 +54,13 @@ class SuiteSummary(object):
 
 
 class FeatureSummary(object):
-    def __init__(self, behaveable_file=None, **kwargs):
+    def __init__(self, urlpath=None, behaveable_file=None, **kwargs):
         super().__init__(**kwargs)
+        if urlpath is None:
+            raise ValueError(str(locals()))
         if behaveable_file is None:
-            behaveable_file = BehaveAbleFile()
+            behaveable_file = BehaveAbleFile().from_urlpath(urlpath, app=None, **kwargs)
+        self.urlpath = urlpath
         self.gherkin_document = behaveable_file.gherkin_document
         self.pickles = behaveable_file.pickles
         self.scenario_count = len(self.pickles)
@@ -83,7 +90,7 @@ class BehaveAbleFile(File):
             raise GherkinError("unable to parse / pickle doc {doc}".format(doc=self.path)) from e
 
     def summarise(self, **kwargs):
-        feature_summary = FeatureSummary(behaveable_file=self, **kwargs)
+        feature_summary = FeatureSummary(urlpath=self.urlpath, behaveable_file=self, **kwargs)
         return feature_summary  # return gherkin_document
 
     @classmethod

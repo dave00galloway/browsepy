@@ -3,9 +3,10 @@ import os.path
 from flask import Blueprint, render_template
 from werkzeug.exceptions import NotFound
 
-from browsepy import OutsideDirectoryBase, get_cookie_browse_sorting, browse_sortkey_reverse, stream_template
+from browsepy import OutsideDirectoryBase
 from browsepy.plugin.feature_browser.behaveable import detect_behaveable_mimetype, BehaveAbleFile, BehaveAbleDir, \
     SuiteSummary
+from browsepy.plugin.feature_browser.table_format import TableFormatSummary
 
 __basedir__ = os.path.dirname(os.path.abspath(__file__))
 
@@ -35,21 +36,22 @@ def summarise_feature(path):
 @browser.route("/summarise-directory", defaults={"path": ""})
 @browser.route('/summarise-directory/<path:path>')
 def summarise_directory(path):
-    sort_property = get_cookie_browse_sorting(path, 'text')
-    sort_fnc, sort_reverse = browse_sortkey_reverse(sort_property)
+    # sort_property = get_cookie_browse_sorting(path, 'text')
+    # sort_fnc, sort_reverse = browse_sortkey_reverse(sort_property)
     try:
         suite = BehaveAbleDir.from_urlpath(path)
         if suite.is_directory:
             summary = suite.summarise()
-            suite_summary = SuiteSummary(behaveable_suite=suite, feature_summary=summary)
-            return stream_template(
-                'audio.player.html',
-                file=suite,
-                sort_property=sort_property,
-                sort_fnc=sort_fnc,
-                sort_reverse=sort_reverse,
-                playlist=True
-            )
+            suite_summary = SuiteSummary(urlpath=suite.urlpath, feature_summary=summary)
+            return TableFormatSummary(suite_summary=suite_summary).__html__()
+            # return stream_template(
+            #     'audio.player.html',
+            #     file=suite,
+            #     sort_property=sort_property,
+            #     sort_fnc=sort_fnc,
+            #     sort_reverse=sort_reverse,
+            #     playlist=True
+            # )
     except OutsideDirectoryBase:
         pass
     return NotFound()
