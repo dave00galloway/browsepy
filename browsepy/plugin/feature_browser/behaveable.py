@@ -19,6 +19,7 @@ logger.addHandler(handler)
 class GherkinError(Exception):
     pass
 
+
 class FeatureSummary(object):
     def __init__(self, behaveable_file=None, **kwargs):
         super().__init__(**kwargs)
@@ -50,7 +51,6 @@ class BehaveAbleFile(File):
             self.gherkin_document = parser.parse(scanner)
             self.pickles = compiler.compile(self.gherkin_document)
         except Exception as e:
-            # logger.error("unable to parse / pickle doc {doc}".format(doc=self.path), exc_info=1)
             raise GherkinError("unable to parse / pickle doc {doc}".format(doc=self.path)) from e
 
     def summarise(self, **kwargs):
@@ -135,7 +135,9 @@ class BehaveAbleDir(Directory):
                 else:
                     try:
                         yield self.file_class(**kwargs)
-                    except GherkinError:
+                    except GherkinError as e:
+                        if detect_behaveable_mimetype(self.path):
+                            raise GherkinError("unable to parse / pickle doc {doc}".format(doc=self.path)) from e
                         continue
             except OSError as e:
                 logger.exception(e)

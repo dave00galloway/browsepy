@@ -39,7 +39,7 @@ def summarise_directory(path):
     try:
         suite = BehaveAbleDir.from_urlpath(path)
         if suite.is_directory:
-            suite.summarise()
+            summary = suite.summarise()
             return stream_template(
                 'audio.player.html',
                 file=suite,
