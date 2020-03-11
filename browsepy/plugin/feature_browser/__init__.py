@@ -3,7 +3,7 @@ import os.path
 from flask import Blueprint, render_template
 from werkzeug.exceptions import NotFound
 
-from browsepy import OutsideDirectoryBase
+from browsepy import OutsideDirectoryBase, stream_template
 from browsepy.plugin.feature_browser.behaveable import detect_behaveable_mimetype, BehaveAbleFile, BehaveAbleDir, \
     SuiteSummary
 from browsepy.plugin.feature_browser.table_format import TableFormatSummary
@@ -43,15 +43,16 @@ def summarise_directory(path):
         if suite.is_directory:
             summary = suite.summarise()
             suite_summary = SuiteSummary(urlpath=suite.urlpath, feature_summary=summary)
-            return TableFormatSummary(suite_summary=suite_summary).__html__()
-            # return stream_template(
-            #     'audio.player.html',
-            #     file=suite,
-            #     sort_property=sort_property,
-            #     sort_fnc=sort_fnc,
-            #     sort_reverse=sort_reverse,
-            #     playlist=True
-            # )
+            # return TableFormatSummary(suite_summary=suite_summary).__html__()
+            return stream_template(
+                'audio.player.html',
+                file=suite,
+                table=TableFormatSummary(suite_summary=suite_summary)
+                # sort_property=sort_property,
+                # sort_fnc=sort_fnc,
+                # sort_reverse=sort_reverse,
+                # playlist=True
+            )
     except OutsideDirectoryBase:
         pass
     return NotFound()
