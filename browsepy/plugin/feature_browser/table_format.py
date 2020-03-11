@@ -35,8 +35,8 @@ class TableFormatSummary(Table):
             items.append(TableFormatEntry(suite_summary=summary, **kwargs))
         for summary in suite_summary.features.values():
             items.append(TableFormatEntry(suite_summary=summary, **kwargs))
-        items.sort(key=lambda x: x.urlpath)
         super().__init__(items)
+        self.sort_url(None, reverse=False)
 
     def sort_url(self, col_id, reverse=False):
         list(self.items).sort(key=lambda x: x.urlpath, reverse=reverse)
