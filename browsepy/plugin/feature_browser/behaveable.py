@@ -82,7 +82,6 @@ class BehaveAbleFile(File):
         self.path = file.path
         parser = Parser()
         scanner = TokenScanner(self.path)
-        # noinspection PyBroadException
         try:
             self.gherkin_document = parser.parse(scanner)
             self.pickles = compiler.compile(self.gherkin_document)
@@ -91,7 +90,7 @@ class BehaveAbleFile(File):
 
     def summarise(self, **kwargs):
         feature_summary = FeatureSummary(urlpath=self.urlpath, behaveable_file=self, **kwargs)
-        return feature_summary  # return gherkin_document
+        return feature_summary
 
     @classmethod
     def from_urlpath(cls, path, app=None, **defaults):
@@ -169,12 +168,13 @@ class BehaveAbleDir(Directory):
                 if entry.is_dir(follow_symlinks=True):
                     yield self.directory_class(**kwargs)
                 else:
-                    try:
-                        yield self.file_class(**kwargs)
-                    except GherkinError as e:
-                        if detect_behaveable_mimetype(self.path):
-                            raise GherkinError("unable to parse / pickle doc {doc}".format(doc=self.path)) from e
-                        continue
+                    if detect_behaveable_mimetype(entry.path):
+                        try:
+                            yield self.file_class(**kwargs)
+                        except GherkinError as e:
+                            raise GherkinError("unable to parse / pickle doc {doc}".format(doc=entry.path)) from e
+                    else:
+                        logger.debug("skipping {entry}. Not a feature file.".format(entry=entry.path))
             except OSError as e:
                 logger.exception(e)
 
