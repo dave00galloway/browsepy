@@ -36,23 +36,15 @@ def summarise_feature(path):
 @browser.route("/summarise-directory", defaults={"path": ""})
 @browser.route('/summarise-directory/<path:path>')
 def summarise_directory(path):
-    # sort_property = get_cookie_browse_sorting(path, 'text')
-    # sort_fnc, sort_reverse = browse_sortkey_reverse(sort_property)
     try:
         suite = BehaveAbleDir.from_urlpath(path)
         if suite.is_directory:
             summary = suite.summarise()
             suite_summary = SuiteSummary(urlpath=suite.urlpath, feature_summary=summary)
-            # return TableFormatSummary(suite_summary=suite_summary).__html__()
             return stream_template(
                 'audio.player.html',
                 file=suite,
-                table=TableFormatSummary(suite_summary=suite_summary)
-                # sort_property=sort_property,
-                # sort_fnc=sort_fnc,
-                # sort_reverse=sort_reverse,
-                # playlist=True
-            )
+                table=TableFormatSummary(suite_summary=suite_summary))
     except OutsideDirectoryBase:
         pass
     return NotFound()
