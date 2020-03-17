@@ -24,12 +24,9 @@ class TableFormatSummary(Table):
                       url_kwargs=dict(path='urlpath'),
                       allow_sort=True,
                       attr_list=['urlpath'])
-    scenario_count = Col('scenario_count')
-    feature_count = Col('feature_count')
     suite_count = Col('suite_count')
-
-    # link = LinkCol(
-    #     'Link', 'browser.summarise_directory', url_kwargs=dict(path='urlpath'), allow_sort=False)
+    feature_count = Col('feature_count')
+    scenario_count = Col('scenario_count')
 
     def __init__(self, suite_summary=None, **kwargs):
         if suite_summary is None:
@@ -43,4 +40,4 @@ class TableFormatSummary(Table):
         self.sort_url(None, reverse=False)
 
     def sort_url(self, col_id, reverse=False):
-        list(self.items).sort(key=lambda x: x.urlpath, reverse=reverse)
+        self.items = sorted(self.items, key=lambda x: x.urlpath, reverse=reverse)
