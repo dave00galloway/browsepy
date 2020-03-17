@@ -20,12 +20,16 @@ class TableFormatEntry(object):
 
 
 class TableFormatSummary(Table):
-    urlpath = Col('urlpath')
+    urlpath = LinkCol('urlpath', 'browser.summarise_directory',
+                      url_kwargs=dict(path='urlpath'),
+                      allow_sort=True,
+                      attr_list=['urlpath'])
     scenario_count = Col('scenario_count')
     feature_count = Col('feature_count')
     suite_count = Col('suite_count')
-    link = LinkCol(
-        'Link', 'browser.summarise_directory', url_kwargs=dict(path='urlpath'), allow_sort=False)
+
+    # link = LinkCol(
+    #     'Link', 'browser.summarise_directory', url_kwargs=dict(path='urlpath'), allow_sort=False)
 
     def __init__(self, suite_summary=None, **kwargs):
         if suite_summary is None:
